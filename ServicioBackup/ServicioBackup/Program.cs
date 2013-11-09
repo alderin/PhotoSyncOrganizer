@@ -10,15 +10,9 @@ namespace ServicioBackup
     {
         static void Main(string[] args)
         {
-            String carpeta = @"C:\Pruebas";
-            var lista = Directory.EnumerateFiles(carpeta);
-            System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-            foreach (var archivo in lista)
-            {
-                Console.WriteLine(File.GetCreationTime(archivo));
-                
-            }
-            Console.Read();
+            Organizer org = new Organizer { CarpetaOrigenImagenes = @"C:\Pruebas" };
+            org.ListarFechas();
+            org.CrearCarpeta(DateTime.Now, org.CarpetaOrigenImagenes);
         }
 
       
