@@ -15,7 +15,7 @@ namespace ServicioBackup
 
 
 
-        public String CrearCarpeta(DateTime date)
+        private String CrearCarpeta(DateTime date)
         {
             string path = CarpetaDestinoImagenes + "\\" + date.Year + "-" + date.Month.ToString("D2") + "\\";
             if (!Directory.Exists(path))
@@ -24,12 +24,12 @@ namespace ServicioBackup
             }
             return path;
         }
-        public void Renombrar()
+        public void Ejecutar()
         {
             var lista = Directory.EnumerateFiles(CarpetaOrigenImagenes, "*.*", SearchOption.AllDirectories);
             foreach (var archivo in lista)
             {
-                if (MasDeUnMes(archivo))
+                if (MasViejaDeUnMes(archivo))
                 {
                     var destino = CalcularPathDestino(archivo);
                     CopiarFichero(archivo, destino);
@@ -44,7 +44,7 @@ namespace ServicioBackup
         }
         private void CopiarFichero(string source, string destinationPath)
         {
-            string destinationPathRenamed = ComprobarExistencia(destinationPath);
+            string destinationPathRenamed = ComprobarExistenciaFichero(destinationPath);
             if (File.Exists(destinationPath))
             {
                 File.Move(source, destinationPathRenamed);
@@ -63,15 +63,15 @@ namespace ServicioBackup
             }
         }
 
-        private String ComprobarExistencia(string file)
+        private String ComprobarExistenciaFichero(string file)
         {
             if (File.Exists(file))
             {
-                file = ComprobarExistencia(Path.GetDirectoryName(file) + "\\" + Path.GetFileNameWithoutExtension(file) + "-" + Path.GetExtension(file));
+                file = ComprobarExistenciaFichero(Path.GetDirectoryName(file) + "\\" + Path.GetFileNameWithoutExtension(file) + "-" + Path.GetExtension(file));
             }
             return file;
         }
-        public bool MasDeUnMes(string file)
+        private bool MasViejaDeUnMes(string file)
         {
             DateTime fechaArchivo = File.GetLastWriteTime(file);
             TimeSpan diferencia = DateTime.Now - fechaArchivo;
