@@ -10,15 +10,17 @@ namespace ServicioBackup
     {
         static void Main(string[] args)
         {
-            var lista = Directory.EnumerateFiles(@"C:\Pruebas");
+            String carpeta = @"C:\Pruebas";
+            var lista = Directory.EnumerateFiles(carpeta);
             System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
             foreach (var archivo in lista)
-            {     
+            {
                 Console.WriteLine(File.GetCreationTime(archivo));
+                
             }
             Console.Read();
         }
 
-        public void CrearCarpeta(DateTime fecha) { }
+      
     }
 }
