@@ -13,20 +13,49 @@ namespace ServicioBackup
 
         public String CarpetaDestinoImagenes { get; set; }
 
-        public List<DateTime> ListarFechas()
+
+
+        public String CrearCarpeta(DateTime fecha)
         {
-            var lista = Directory.EnumerateFiles(CarpetaOrigenImagenes);
-            List<DateTime> listaFechas = new List<DateTime>();
+            string path = CarpetaDestinoImagenes + "\\" + fecha.Year + "-" + fecha.Month.ToString("D2") + "\\";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            return path;
+        }
+        public void Renombrar()
+        {
+            var lista = Directory.EnumerateFiles(CarpetaOrigenImagenes, "*.*", SearchOption.AllDirectories);
             foreach (var archivo in lista)
             {
-                listaFechas.Add(File.GetCreationTime(archivo));
+                var destino = ComprobarExistencia(archivo);
+                Console.WriteLine("Path: " + Path.GetDirectoryName(archivo) + " Archivo: " + Path.GetFileName(archivo) + "NuevoNombre= " + destino);
             }
-            return listaFechas;
         }
-
-        public void CrearCarpeta(DateTime fecha, string actual)
+        private String ComprobarExistencia(string file)
         {
-            string path = actual + "\\" + fecha.Year + "-" + fecha.Month;
+            var archivoExiste = CrearCarpeta(Directory.GetLastWriteTime(file)) + File.GetCreationTime(file).ToString("yyyy-MM-dd hh.mm.ss") + Path.GetExtension(file);
+            if (File.Exists(archivoExiste))
+            {
+                archivoExiste = ComprobarExistencia(CrearCarpeta(Directory.GetLastWriteTime(file)) + File.GetCreationTime(file).ToString("yyyy-MM-dd hh.mm.ss") + "-"+Path.GetExtension(file));
+            }
+            return archivoExiste;
+        }
+        public void MoverACarpeta(string file)
+        {
+            String destino = CrearCarpeta(Directory.GetLastWriteTime(file)) + "\\";// +"\\" + File.GetCreationTime(file).ToString("yyyy-mm-dd hh.mm.ss");
+            string path = destino + Path.GetFileName(file);
+
+            File.Move(file, path);
+        }
+        public void MoverArchivos()
+        {
+            var lista = Directory.EnumerateFiles(CarpetaOrigenImagenes);
+            foreach (string archivo in lista)
+            {
+                MoverACarpeta(archivo);
+            }
         }
     }
 }
