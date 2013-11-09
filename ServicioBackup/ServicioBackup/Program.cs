@@ -10,7 +10,9 @@ namespace ServicioBackup
     {
         static void Main(string[] args)
         {
-            Organizer org = new Organizer { CarpetaOrigenImagenes = @"C:\Pruebas", CarpetaDestinoImagenes=@"C:\Prueba2" };
+         //   Organizer org = new Organizer { CarpetaOrigenImagenes = @"C:\Users\Alejandro\Pictures\Movil", CarpetaDestinoImagenes = @"C:\Prueba2" };
+            OrganizadorImagenes org = new OrganizadorImagenes { CarpetaOrigenImagenes = args[0], CarpetaDestinoImagenes = args[1] };
+      
             org.Renombrar();
             //org.MoverArchivos();
         }

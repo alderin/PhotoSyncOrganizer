@@ -7,7 +7,7 @@ using System.IO;
 
 namespace ServicioBackup
 {
-    internal class Organizer
+    internal class OrganizadorImagenes
     {
         public String CarpetaOrigenImagenes { get; set; }
 
@@ -15,9 +15,9 @@ namespace ServicioBackup
 
 
 
-        public String CrearCarpeta(DateTime fecha)
+        public String CrearCarpeta(DateTime date)
         {
-            string path = CarpetaDestinoImagenes + "\\" + fecha.Year + "-" + fecha.Month.ToString("D2") + "\\";
+            string path = CarpetaDestinoImagenes + "\\" + date.Year + "-" + date.Month.ToString("D2") + "\\";
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -29,33 +29,53 @@ namespace ServicioBackup
             var lista = Directory.EnumerateFiles(CarpetaOrigenImagenes, "*.*", SearchOption.AllDirectories);
             foreach (var archivo in lista)
             {
-                var destino = ComprobarExistencia(archivo);
-                Console.WriteLine("Path: " + Path.GetDirectoryName(archivo) + " Archivo: " + Path.GetFileName(archivo) + "NuevoNombre= " + destino);
+                if (MasDeUnMes(archivo))
+                {
+                    var destino = CalcularPathDestino(archivo);
+                    CopiarFichero(archivo, destino);
+                    Console.WriteLine("Path: " + Path.GetDirectoryName(archivo) + " Archivo: " + Path.GetFileName(archivo) + "NuevoNombre= " + destino);
+                }
             }
         }
+        private string CalcularPathDestino(string file)
+        {
+            string fechaArchivo = File.GetLastWriteTime(file).ToString("yyyy-MM-dd HH.mm.ss");
+            return CrearCarpeta(Directory.GetLastWriteTime(file)) + fechaArchivo + Path.GetExtension(file);
+        }
+        private void CopiarFichero(string source, string destinationPath)
+        {
+            string destinationPathRenamed = ComprobarExistencia(destinationPath);
+            if (File.Exists(destinationPath))
+            {
+                File.Move(source, destinationPathRenamed);
+            }
+            else
+            {
+                try
+                {
+                    File.Move(source, destinationPath);
+                }
+                catch (IOException ex)
+                {
+                    // destinationPath file already exists
+                    File.Move(source, destinationPathRenamed);
+                }
+            }
+        }
+
         private String ComprobarExistencia(string file)
         {
-            var archivoExiste = CrearCarpeta(Directory.GetLastWriteTime(file)) + File.GetCreationTime(file).ToString("yyyy-MM-dd hh.mm.ss") + Path.GetExtension(file);
-            if (File.Exists(archivoExiste))
+            if (File.Exists(file))
             {
-                archivoExiste = ComprobarExistencia(CrearCarpeta(Directory.GetLastWriteTime(file)) + File.GetCreationTime(file).ToString("yyyy-MM-dd hh.mm.ss") + "-"+Path.GetExtension(file));
+                file = ComprobarExistencia(Path.GetDirectoryName(file) + "\\" + Path.GetFileNameWithoutExtension(file) + "-" + Path.GetExtension(file));
             }
-            return archivoExiste;
+            return file;
         }
-        public void MoverACarpeta(string file)
+        public bool MasDeUnMes(string file)
         {
-            String destino = CrearCarpeta(Directory.GetLastWriteTime(file)) + "\\";// +"\\" + File.GetCreationTime(file).ToString("yyyy-mm-dd hh.mm.ss");
-            string path = destino + Path.GetFileName(file);
-
-            File.Move(file, path);
-        }
-        public void MoverArchivos()
-        {
-            var lista = Directory.EnumerateFiles(CarpetaOrigenImagenes);
-            foreach (string archivo in lista)
-            {
-                MoverACarpeta(archivo);
-            }
+            DateTime fechaArchivo = File.GetLastWriteTime(file);
+            TimeSpan diferencia = DateTime.Now - fechaArchivo;
+            return diferencia > new TimeSpan(31, 0, 0, 0, 0);
         }
     }
 }
