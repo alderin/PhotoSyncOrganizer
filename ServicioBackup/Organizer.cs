@@ -33,9 +33,10 @@ namespace ServicioBackup
                 {
                     var destino = CalcularPathDestino(archivo);
                     CopiarFichero(archivo, destino);
-                    Console.WriteLine("Path: " + Path.GetDirectoryName(archivo) + " Archivo: " + Path.GetFileName(archivo) + "NuevoNombre= " + destino);
+                    Console.WriteLine( destino);
                 }
             }
+            //File.CreateText(CarpetaDestinoImagenes + DateTime.Now.ToString() + ".txt");
         }
         private string CalcularPathDestino(string file)
         {
